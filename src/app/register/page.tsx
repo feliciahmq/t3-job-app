@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { api } from "~/trpc/react";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,28 +21,27 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+	const registerMutation = api.user.register.useMutation({
+		onSuccess: () => {
+			router.push("/login");
+		},
+		onError: (error) => {
+			setError(error.message);
+		},
+	});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
     try {
-			const res = await fetch("/api/auth/register", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					name,
-					email,
-					password
-				}),
+			await registerMutation.mutateAsync({
+				name,
+				email,
+				password,
 			});
-
-			if (!res.ok) {
-				setError("An error occurred. Please try again.")
-			}
-
-			router.push("/login")
-    } catch (err) {
+    } catch (error) {
       setError("An error occurred. Please try again.")
     } finally {
       setIsLoading(false)
@@ -110,11 +110,6 @@ export default function RegisterPage() {
             <Link href="/login" className="text-primary hover:underline">
               Sign in
             </Link>
-          </div>
-          <div className="text-xs text-muted-foreground mt-4">
-            <p>Demo credentials:</p>
-            <p>Email: demo@example.com</p>
-            <p>Password: password</p>
           </div>
         </CardFooter>
       </Card>

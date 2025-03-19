@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { api } from "~/trpc/react";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,6 +20,15 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+	const loginMutation = api.user.login.useMutation({
+		onSuccess: () => {
+			router.push("/dashboard");
+		},
+		onError: (error) => {
+			setError(error.message);
+		},
+	})
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -27,22 +37,10 @@ export default function LoginPage() {
     // In a real app, you would validate credentials with your backend
     // This is just a demo that redirects to the dashboard
     try {
-			const response = await fetch("/api/auth/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email, password }),
+			await loginMutation.mutateAsync({
+				email,
+				password,
 			});
-
-			/* eslint-disable-next-line */
-			const data = await response.json();
-
-			if (!response.ok) {
-				setError("Invalid email or password.");
-			} else {
-				/* eslint-disable-next-line */
-				localStorage.setItem("token", data.token);
-				router.push("/dashboard");
-			}
     } catch (err) {
       setError("An error occurred. Please try again.")
     } finally {

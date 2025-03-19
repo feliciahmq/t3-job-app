@@ -10,9 +10,8 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
-import { auth } from "~/server/auth";
 import { db } from "~/server/db";
+import jwt from "jsonwebtoken";
 
 /**
  * 1. CONTEXT
@@ -26,14 +25,20 @@ import { db } from "~/server/db";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await auth();
+export const createTRPCContext = async ({ headers }: { headers: Headers }) => {
+  /* eslint-disable-next-line */
+	const token = headers.get("authorization")?.split(" ")[1];
 
-  return {
-    db,
-    session,
-    ...opts,
-  };
+	let user = null;
+  if (token) {
+    try {
+      user = jwt.verify(token, process.env.TOKEN_SECRET!);
+    } catch (err) {
+      console.error("Invalid token");
+    }
+  }
+
+  return { user };
 };
 
 /**
@@ -121,13 +126,12 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user) {
+    if (!ctx.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({
       ctx: {
-        // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
+        user: { user: ctx.user },
       },
     });
   });
