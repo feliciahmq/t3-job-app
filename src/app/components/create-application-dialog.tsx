@@ -19,7 +19,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { JobStatus } from "@prisma/client"
-import { useQueryClient } from "@tanstack/react-query"
 
 interface CreateApplicationDialogProps {
   open: boolean

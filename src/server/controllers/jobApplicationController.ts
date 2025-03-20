@@ -95,9 +95,10 @@ export const deleteJobApplication = async (input: {
   }
 };
 
-export const getJobApplications = async () => {
+export const getJobApplications = async ({ userId }: { userId: string }) => {
   try {
     const apps = await db.jobApplication.findMany({
+      where: { userId },
       orderBy: { lastUpdated: "desc" },
     });
   

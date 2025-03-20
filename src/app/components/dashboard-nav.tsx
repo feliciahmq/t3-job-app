@@ -23,11 +23,6 @@ const navItems: NavItem[] = [
     icon: Home,
   },
   {
-    title: "Documents",
-    href: "/dashboard/documents",
-    icon: FileText,
-  },
-  {
     title: "Analytics",
     href: "/dashboard/analytics",
     icon: BarChart3,

@@ -12,6 +12,23 @@ export const registerSchema = z.object({
     .max(32, "Password must be less than 32 characters"),
 });
 
+export const updateUserSchema = z.object({
+  name: z.string({ required_error: "Name is required" })
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be less than 50 characters")
+    .optional(),
+  email: z.string({ required_error: "Email is required" })
+    .min(1, "Email is required")
+    .email("Invalid email")
+    .optional(),
+})
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(7, "Password must be at least 7 characters"),
+  newPassword: z.string().min(7, "Password must be at least 7 characters"),
+  confirmPassword: z.string(),
+})
+
 export const loginSchema = z.object({
   email: z.string({ required_error: "Email is required" })
     .min(1, "Email is required")

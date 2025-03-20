@@ -14,7 +14,7 @@ import { api } from "~/trpc/react"
 
 export default function DashboardPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const { data: statsData, isLoading } = api.jobApplication.getStats.useQuery()
+  const { data: statsData } = api.jobApplication.getStats.useQuery()
 
   const stats = [
     {

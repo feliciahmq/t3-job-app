@@ -41,7 +41,9 @@ export const jobApplicationRouter = t.router({
     .mutation(({ input }) => deleteJobApplication(input)),
 
   getJobApps: publicProcedure
-    .query(() => getJobApplications()),
+    .query(async ({ ctx }) => 
+      getJobApplications({ userId: ctx.user!.id})
+  ),
 
   getJobApp: protectedProcedure
     .input(
@@ -53,15 +55,19 @@ export const jobApplicationRouter = t.router({
 
   getStats: protectedProcedure
     .query(async ({ ctx }) => {
-      const total = await ctx.prisma.jobApplication.count();
+      const userId = ctx.user!.id; 
+
+      const total = await ctx.prisma.jobApplication.count({
+        where: { userId },
+      });
       const inProgress = await ctx.prisma.jobApplication.count({
-        where: { status: { in: ["APPLIED", "INTERVIEW"] } },
+        where: { userId, status: { in: ["APPLIED", "INTERVIEW"] } },
       });
       const interviews = await ctx.prisma.jobApplication.count({
-        where: { status: "INTERVIEW" },
+        where: { userId, status: "INTERVIEW" },
       });
       const offers = await ctx.prisma.jobApplication.count({
-        where: { status: "OFFER" },
+        where: { userId, status: "OFFER" },
       });
   
       return {
@@ -73,4 +79,4 @@ export const jobApplicationRouter = t.router({
     })
 });
 
-export type AppRouter = typeof appRouter;
+export type JobAppRouter = typeof appRouter;

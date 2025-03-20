@@ -29,7 +29,7 @@ const prisma = new PrismaClient();
  */
 export const createTRPCContext = async ({ headers, token }: { headers: Headers, token?: string }) => {
   /* eslint-disable-next-line */
-	let user: { id: string, email: string } | null = null;
+	let user: { id: string, name: string, email: string } | null = null;
 
   if (!token) {
     token = headers.get("authorization")?.split(" ")[1];
@@ -38,7 +38,7 @@ export const createTRPCContext = async ({ headers, token }: { headers: Headers, 
   if (token) {
     try {
       user = jwt.verify(token, process.env.TOKEN_SECRET!) as JwtPayload 
-        & { id: string; email: string };
+        & { id: string; name: string; email: string };
     } catch (err) {
       console.error("Invalid token");
     }

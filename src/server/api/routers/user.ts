@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { db } from '~/server/db';
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { registerSchema, loginSchema } from "~/app/lib/zod";
+import { registerSchema, loginSchema, updateUserSchema, changePasswordSchema } from "~/app/lib/zod";
 import { protectedProcedure, publicProcedure } from '../trpc';
 import { appRouter } from '../root';
 
@@ -72,6 +72,73 @@ export const userRouter = t.router({
 					token
 				}
 			}),
+
+    updateUser: protectedProcedure
+      .input(updateUserSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { name, email } = input;
+        const userId = ctx.user?.id;
+
+        if (!userId) {
+          throw new Error("Unauthorized");
+        }
+
+        if (email) {
+          const emailExists = await db.user.findUnique({ where: { email } });
+          if (emailExists && emailExists.id !== userId) {
+            throw new Error("Email already in use");
+          }
+        }
+
+        let updateData: { name?: string; email?: string; password?: string } = {};
+
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+
+        const updatedUser = await db.user.update({
+          where: { id: userId },
+          data: updateData,
+        });
+
+        return {
+          message: "Profile updated successfully",
+          user: {
+            id: updatedUser.id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+          },
+        };
+      }),
+      changePassword: protectedProcedure
+      .input(changePasswordSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { currentPassword, newPassword, confirmPassword } = input;
+    
+        if (newPassword !== confirmPassword) {
+          throw new Error("New passwords do not match");
+        }
+    
+        const user = await db.user.findUnique({ where: { id: ctx.user!.id } });
+    
+        if (!user) {
+          throw new Error("User not found");
+        }
+    
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+          throw new Error("Incorrect current password");
+        }
+    
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+        await db.user.update({
+          where: { id: ctx.user!.id },
+          data: { password: hashedPassword },
+        });
+    
+        return { message: "Password changed successfully" };
+      }),
+    
 });
 
-export type AppRouter = typeof appRouter;
+export type UserRouter = typeof appRouter;

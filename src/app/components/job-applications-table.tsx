@@ -186,7 +186,9 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
                     ? "success"
                     : status === "REJECTED"
                       ? "destructive"
-                      : "default"
+                      : status === "WITHDRAWN"
+                        ? "outline"
+                        : "default"
             }
           >
             {status}
