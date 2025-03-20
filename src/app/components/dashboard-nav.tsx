@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import type React from "react"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "~/app/lib/utils"
 import { Button } from "@/components/ui/button"
 import { BarChart3, BriefcaseIcon, Calendar, FileText, Home, LogOut, Settings, User } from "lucide-react"
@@ -36,6 +36,13 @@ const navItems: NavItem[] = [
 
 export function DashboardNav() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.refresh()
+    router.replace("/")
+  };
 
   return (
     <div className="flex flex-col gap-2 p-4">
@@ -71,7 +78,7 @@ export function DashboardNav() {
             Settings
           </Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start text-red-500" asChild>
+        <Button variant="ghost" className="w-full justify-start text-red-500" onClick={handleLogout} asChild>
           <Link href="/">
             <LogOut className="mr-2 h-4 w-4" />
             Logout

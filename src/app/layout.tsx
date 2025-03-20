@@ -5,6 +5,7 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "sonner";
+import ProtectedLayout from "./components/ProtectedLayout";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -18,7 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ProtectedLayout>
+            {children}
+          </ProtectedLayout>
+        </TRPCReactProvider>
         <Toaster />
       </body>
     </html>

@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import type { JobApplication } from "./job-applications-table"
+import { api } from "~/trpc/react"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface DeleteApplicationDialogProps {
   application: JobApplication
@@ -23,14 +25,24 @@ interface DeleteApplicationDialogProps {
 export function DeleteApplicationDialog({ application, open, onOpenChange }: DeleteApplicationDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
 
+  const utils = api.useUtils();
+  const deleteJobApp = api.jobApplication.deleteJobApp.useMutation({
+    onSuccess: () => {
+      utils.jobApplication.getJobApps.invalidate(); 
+
+      toast.success("Your job application has been created successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to create job application. Please try again.");
+    },
+  });
+
   const handleDelete = async () => {
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Show success toast
-    toast("Your job application has been deleted successfully.")
+    await deleteJobApp.mutateAsync({
+      id: application.id,
+    })
 
     // Close dialog
     setIsLoading(false)

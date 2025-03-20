@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { api } from "~/trpc/react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -34,78 +35,79 @@ import { DeleteApplicationDialog } from "@/components/delete-application-dialog"
 export type JobApplication = {
   id: string
   company: string
+  notes?: string
   position: string
   location: string
-  status: "Applied" | "Interview" | "Offer" | "Rejected" | "Withdrawn"
-  dateApplied: string
-  lastUpdated: string
+  status: "APPLIED" | "INTERVIEW" | "OFFER" | "REJECTED" | "WITHDRAWN"
+  dateApplied: Date
+  lastUpdated: Date
 }
 
-const data: JobApplication[] = [
-  {
-    id: "1",
-    company: "Acme Inc",
-    position: "Frontend Developer",
-    location: "San Francisco, CA",
-    status: "Interview",
-    dateApplied: "2025-02-15",
-    lastUpdated: "2025-03-01",
-  },
-  {
-    id: "2",
-    company: "Globex Corporation",
-    position: "Full Stack Engineer",
-    location: "Remote",
-    status: "Applied",
-    dateApplied: "2025-02-20",
-    lastUpdated: "2025-02-20",
-  },
-  {
-    id: "3",
-    company: "Stark Industries",
-    position: "UI/UX Designer",
-    location: "New York, NY",
-    status: "Offer",
-    dateApplied: "2025-01-10",
-    lastUpdated: "2025-03-05",
-  },
-  {
-    id: "4",
-    company: "Wayne Enterprises",
-    position: "Product Manager",
-    location: "Chicago, IL",
-    status: "Rejected",
-    dateApplied: "2025-02-01",
-    lastUpdated: "2025-02-28",
-  },
-  {
-    id: "5",
-    company: "Umbrella Corporation",
-    position: "Backend Developer",
-    location: "Seattle, WA",
-    status: "Applied",
-    dateApplied: "2025-03-01",
-    lastUpdated: "2025-03-01",
-  },
-  {
-    id: "6",
-    company: "Cyberdyne Systems",
-    position: "DevOps Engineer",
-    location: "Austin, TX",
-    status: "Interview",
-    dateApplied: "2025-02-10",
-    lastUpdated: "2025-03-02",
-  },
-  {
-    id: "7",
-    company: "Initech",
-    position: "Software Engineer",
-    location: "Remote",
-    status: "Withdrawn",
-    dateApplied: "2025-01-20",
-    lastUpdated: "2025-02-15",
-  },
-]
+// const data: JobApplication[] = [
+//   {
+//     id: "1",
+//     company: "Acme Inc",
+//     position: "Frontend Developer",
+//     location: "San Francisco, CA",
+//     status: "Interview",
+//     dateApplied: "2025-02-15",
+//     lastUpdated: "2025-03-01",
+//   },
+//   {
+//     id: "2",
+//     company: "Globex Corporation",
+//     position: "Full Stack Engineer",
+//     location: "Remote",
+//     status: "Applied",
+//     dateApplied: "2025-02-20",
+//     lastUpdated: "2025-02-20",
+//   },
+//   {
+//     id: "3",
+//     company: "Stark Industries",
+//     position: "UI/UX Designer",
+//     location: "New York, NY",
+//     status: "Offer",
+//     dateApplied: "2025-01-10",
+//     lastUpdated: "2025-03-05",
+//   },
+//   {
+//     id: "4",
+//     company: "Wayne Enterprises",
+//     position: "Product Manager",
+//     location: "Chicago, IL",
+//     status: "Rejected",
+//     dateApplied: "2025-02-01",
+//     lastUpdated: "2025-02-28",
+//   },
+//   {
+//     id: "5",
+//     company: "Umbrella Corporation",
+//     position: "Backend Developer",
+//     location: "Seattle, WA",
+//     status: "Applied",
+//     dateApplied: "2025-03-01",
+//     lastUpdated: "2025-03-01",
+//   },
+//   {
+//     id: "6",
+//     company: "Cyberdyne Systems",
+//     position: "DevOps Engineer",
+//     location: "Austin, TX",
+//     status: "Interview",
+//     dateApplied: "2025-02-10",
+//     lastUpdated: "2025-03-02",
+//   },
+//   {
+//     id: "7",
+//     company: "Initech",
+//     position: "Software Engineer",
+//     location: "Remote",
+//     status: "Withdrawn",
+//     dateApplied: "2025-01-20",
+//     lastUpdated: "2025-02-15",
+//   },
+// ]
 
 export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[] }) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -115,10 +117,17 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
   const [editingApplication, setEditingApplication] = useState<JobApplication | null>(null)
   const [deletingApplication, setDeletingApplication] = useState<JobApplication | null>(null)
 
-  // Filter data based on status if filterStatus is provided
-  const filteredData = filterStatus ? data.filter((item) => filterStatus.includes(item.status)) : data
+  const { data: jobApplications } = api.jobApplication.getJobApps.useQuery();
 
-  const columns: ColumnDef<JobApplication>[] = [
+  const jobApplicationsData = jobApplications?.data ?? [];
+
+  // Filter data based on status if filterStatus is provided
+  /* eslint-disable */
+  const filteredData = filterStatus
+   ? jobApplicationsData.filter((item) => filterStatus.includes(item.status))
+   : jobApplicationsData;
+
+  const columns: ColumnDef<typeof jobApplicationsData[number]>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -169,13 +178,13 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
         return (
           <Badge
             variant={
-              status === "Applied"
+              status === "APPLIED"
                 ? "outline"
-                : status === "Interview"
+                : status === "INTERVIEW"
                   ? "secondary"
-                  : status === "Offer"
+                  : status === "OFFER"
                     ? "success"
-                    : status === "Rejected"
+                    : status === "REJECTED"
                       ? "destructive"
                       : "default"
             }
@@ -198,12 +207,31 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
           </Button>
         )
       },
-      cell: ({ row }) => <div>{row.getValue("dateApplied")}</div>,
+      cell: ({ row }) => {
+        const date = row.getValue("dateApplied");
+
+        const formattedDate = date instanceof Date
+          ? date.toLocaleDateString() 
+          : typeof date === "string" && date.trim() !== ""
+          ? new Date(date).toLocaleDateString() 
+          : "N/A";
+        
+        return <div>{formattedDate}</div>;
+      },
     },
     {
       accessorKey: "lastUpdated",
       header: "Last Updated",
-      cell: ({ row }) => <div>{row.getValue("lastUpdated")}</div>,
+      cell: ({ row }) => {
+        const date = row.getValue("lastUpdated");
+
+        const formattedDate = date instanceof Date
+          ? date.toLocaleDateString() 
+          : typeof date === "string" && date.trim() !== ""
+          ? new Date(date).toLocaleDateString() 
+          : "N/A";
+        return <div>{formattedDate}</div>;
+      },
     },
     {
       id: "actions",
@@ -223,11 +251,19 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => navigator.clipboard.writeText(application.id)}>Copy ID</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setEditingApplication(application)}>
+              <DropdownMenuItem onClick={() => 
+                setEditingApplication({
+                  ...application,
+                  lastUpdated: application.lastUpdated,
+                })
+              }>
                 <PencilIcon className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDeletingApplication(application)} className="text-destructive">
+              <DropdownMenuItem onClick={() => setDeletingApplication({
+                ...application,
+                lastUpdated: application.lastUpdated,
+              })} className="text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>

@@ -84,10 +84,10 @@ export default function DashboardPage() {
           <JobApplicationsTable />
         </TabsContent>
         <TabsContent value="active" className="space-y-4">
-          <JobApplicationsTable filterStatus={["Applied", "Interview", "Offer"]} />
+          <JobApplicationsTable filterStatus={["APPLIED", "INTERVIEW", "OFFER"]} />
         </TabsContent>
         <TabsContent value="archived" className="space-y-4">
-          <JobApplicationsTable filterStatus={["Rejected", "Withdrawn"]} />
+          <JobApplicationsTable filterStatus={["REJECTED", "WITHDRAWN"]} />
         </TabsContent>
       </Tabs>
       <CreateApplicationDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />

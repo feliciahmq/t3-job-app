@@ -3,11 +3,16 @@ import { db } from '~/server/db';
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import { registerSchema, loginSchema } from "~/app/lib/zod";
-import { publicProcedure } from '../trpc';
+import { protectedProcedure, publicProcedure } from '../trpc';
+import { appRouter } from '../root';
 
 const t = initTRPC.create();
 
 export const userRouter = t.router({
+  getUser: publicProcedure.query(({ ctx }) => {
+    return ctx.user ?? null;
+  }),
+
   register: publicProcedure
     .input(registerSchema)
     .mutation(async ({ input }) => {
@@ -66,5 +71,7 @@ export const userRouter = t.router({
 					message: "Login successful",
 					token
 				}
-			})
+			}),
 });
+
+export type AppRouter = typeof appRouter;

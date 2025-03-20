@@ -34,15 +34,20 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
 
-    // In a real app, you would validate credentials with your backend
-    // This is just a demo that redirects to the dashboard
     try {
-			await loginMutation.mutateAsync({
+			const res = await loginMutation.mutateAsync({
 				email,
 				password,
 			});
+
+      if (res.token) {
+        localStorage.setItem("token", res.token);
+        router.push("/dashboard");
+      } else {
+        setError("Login failed. Please try again.")
+      }
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError("Wrong email or password. Please try again.")
     } finally {
       setIsLoading(false)
     }

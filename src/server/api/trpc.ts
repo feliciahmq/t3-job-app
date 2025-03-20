@@ -10,8 +10,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { db } from "~/server/db";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 /**
  * 1. CONTEXT
@@ -25,14 +24,18 @@ import jwt from "jsonwebtoken";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async ({ headers }: { headers: Headers }) => {
+export const createTRPCContext = async ({ headers, token }: { headers: Headers, token?: string }) => {
   /* eslint-disable-next-line */
-	const token = headers.get("authorization")?.split(" ")[1];
+	let user: { id: string, email: string } | null = null;
 
-	let user = null;
+  if (!token) {
+    token = headers.get("authorization")?.split(" ")[1];
+  }
+
   if (token) {
     try {
-      user = jwt.verify(token, process.env.TOKEN_SECRET!);
+      user = jwt.verify(token, process.env.TOKEN_SECRET!) as JwtPayload 
+        & { id: string; email: string };
     } catch (err) {
       console.error("Invalid token");
     }
@@ -106,6 +109,20 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
+const authMiddleware = t.middleware(async ({ ctx, next, path }) => {
+  const publicPaths = ["/", "/login", "/register", "user.getUser", "user.login", "user.register"];
+
+  if (!ctx.user && !publicPaths.includes(path)) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Login required" });
+  }
+
+  return next({
+    ctx: { 
+      user: ctx.user 
+    },
+  });
+});
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -113,7 +130,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(timingMiddleware);
+export const publicProcedure = t.procedure.use(timingMiddleware).use(authMiddleware);
 
 /**
  * Protected (authenticated) procedure
@@ -125,13 +142,10 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
+  .use(authMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-    return next({
-      ctx: {
-        user: { user: ctx.user },
-      },
-    });
+    return next()
   });
