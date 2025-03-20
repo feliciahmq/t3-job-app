@@ -11,6 +11,9 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 /**
  * 1. CONTEXT
@@ -41,7 +44,7 @@ export const createTRPCContext = async ({ headers, token }: { headers: Headers, 
     }
   }
 
-  return { user };
+  return { user, prisma };
 };
 
 /**

@@ -1,4 +1,4 @@
-import { initTRPC, TRPCError } from '@trpc/server';
+import { initTRPC } from '@trpc/server';
 import { publicProcedure, protectedProcedure } from '../trpc';
 import { appRouter } from '../root';
 import { z } from "zod";
@@ -50,6 +50,27 @@ export const jobApplicationRouter = t.router({
       })
     )
     .query(({ input }) => getJobApplication(input)),
+
+  getStats: protectedProcedure
+    .query(async ({ ctx }) => {
+      const total = await ctx.prisma.jobApplication.count();
+      const inProgress = await ctx.prisma.jobApplication.count({
+        where: { status: { in: ["APPLIED", "INTERVIEW"] } },
+      });
+      const interviews = await ctx.prisma.jobApplication.count({
+        where: { status: "INTERVIEW" },
+      });
+      const offers = await ctx.prisma.jobApplication.count({
+        where: { status: "OFFER" },
+      });
+  
+      return {
+        total,
+        inProgress,
+        interviews,
+        offers,
+      };
+    })
 });
 
 export type AppRouter = typeof appRouter;

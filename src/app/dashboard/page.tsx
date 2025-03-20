@@ -10,37 +10,38 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { JobApplicationsTable } from "@/components/job-applications-table"
 import { CreateApplicationDialog } from "@/components/create-application-dialog"
 import { BarChart3, BriefcaseIcon, CheckCircle2, Clock, FileText, PlusCircle } from "lucide-react"
-
-// Sample data for the dashboard
-const stats = [
-  {
-    name: "Total Applications",
-    value: "24",
-    icon: BriefcaseIcon,
-    description: "Applications submitted",
-  },
-  {
-    name: "In Progress",
-    value: "12",
-    icon: Clock,
-    description: "Waiting for response",
-  },
-  {
-    name: "Interviews",
-    value: "5",
-    icon: FileText,
-    description: "Scheduled interviews",
-  },
-  {
-    name: "Offers",
-    value: "2",
-    icon: CheckCircle2,
-    description: "Job offers received",
-  },
-]
+import { api } from "~/trpc/react"
 
 export default function DashboardPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const { data: statsData, isLoading } = api.jobApplication.getStats.useQuery()
+
+  const stats = [
+    {
+      name: "Total Applications",
+      value: statsData?.total ?? 0,
+      icon: BriefcaseIcon,
+      description: "Applications submitted",
+    },
+    {
+      name: "In Progress",
+      value: statsData?.inProgress ?? 0,
+      icon: Clock,
+      description: "Waiting for response",
+    },
+    {
+      name: "Interviews",
+      value: statsData?.interviews ?? 0,
+      icon: FileText,
+      description: "Scheduled interviews",
+    },
+    {
+      name: "Offers",
+      value: statsData?.offers ?? 0,
+      icon: CheckCircle2,
+      description: "Job offers received",
+    },
+  ]
 
   return (
     <DashboardShell>
