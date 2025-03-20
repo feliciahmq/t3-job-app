@@ -12,6 +12,7 @@
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
 db.sqlite
+/prisma/migrations/
 
 # next.js
 /.next/
@@ -46,4 +47,4 @@ yarn-error.log*
 # idea files
 .idea
 
-.vscode
+.vscode/
