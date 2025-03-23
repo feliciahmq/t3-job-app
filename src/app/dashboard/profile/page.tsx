@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DashboardShell } from "@/components/dashboard-shell"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PencilIcon } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { api } from "~/trpc/react"
 
 export default function ProfilePage() {
@@ -22,14 +21,14 @@ export default function ProfilePage() {
   });
  
   const { data: user } = api.user.getUser.useQuery();
-  const [name, setName] = useState(user?.name || "");
+  const [name, setName] = useState(user?.name ?? "");
   const utils = api.useUtils();
 
   const updateUser = api.user.updateUser.useMutation({
-    onSuccess: (updatedUser) => {
+    onSuccess: async (updatedUser) => {
       if (updatedUser?.user?.id) {
-        utils.user.getUser.invalidate();
-        setName(updatedUser.user.name || "");
+        await utils.user.getUser.invalidate();
+        setName(updatedUser.user.name ?? "");
       }
   
       toast.success("Profile updated successfully!");

@@ -47,9 +47,9 @@ export default function Home() {
                 <Image
                   src="/placeholder.png"
                   alt="Job Application Dashboard"
-                  className="aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
-                  width={550}
-                  height={550}
+                  className="aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last border"
+                  width={1280}
+                  height={831}
                 />
               </div>
             </div>
@@ -88,7 +88,7 @@ export default function Home() {
                 <div className="space-y-2">
                   <h3 className="text-xl font-bold text-[#635CFF]">Track Applications</h3>
                   <p className="text-muted-foreground">
-                    Keep track of all your job applications in one place with status updates.
+                    Keep track of all your job applications in one place and stay on top of your job hunt with status updates.
                   </p>
                 </div>
               </div>
@@ -113,8 +113,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-[#635CFF]">Set Reminders</h3>
-                  <p className="text-muted-foreground">Never miss a follow-up or interview with built-in reminders.</p>
+                  <h3 className="text-xl font-bold text-[#635CFF]">Visual Dashboard</h3>
+                  <p className="text-muted-foreground">
+                    Identify trends and opportunities with interactive charts that give you insight into your application journey.
+                </p>
                 </div>
               </div>
               <div className="flex flex-col justify-center space-y-4">
@@ -136,9 +138,9 @@ export default function Home() {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-[#635CFF]">Add Notes</h3>
+                  <h3 className="text-xl font-bold text-[#635CFF]">Secure & Personal</h3>
                   <p className="text-muted-foreground">
-                    Keep detailed notes about each application, interview, and follow-up.
+                    Your data is private and tied to your account — accessible only to you, anytime, anywhere.
                   </p>
                 </div>
               </div>

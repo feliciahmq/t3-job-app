@@ -13,6 +13,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+    DialogTrigger,
+  } from "@/components/ui/dialog"
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,6 +31,13 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
 	const loginMutation = api.user.login.useMutation({
 		onSuccess: () => {
@@ -55,6 +72,63 @@ export default function LoginPage() {
     }
   }
 
+  const changePassword = api.user.changePasswordByEmail.useMutation({
+    onSuccess: async () => {
+      toast.success("Password changed successfully!");
+      try {
+        const res = await loginMutation.mutateAsync({
+          email: formData.email,
+          password: formData.newPassword,
+        });
+    
+        if (res.token) {
+          localStorage.setItem("token", res.token);
+          router.push("/dashboard");
+        }
+      } catch (err) {
+        toast.error("Password changed, but auto-login failed. Please log in manually.");
+      }
+      setFormData({ ...formData, currentPassword: "", newPassword: "", confirmPassword: "" });
+    },
+    onError: (error) => {
+      if (error.data?.zodError) {
+        const messages = Object.entries(error.data.zodError.fieldErrors)
+          .map(([field, errors]) => `${field}: ${errors?.join(", ")}`)
+          .join("\n");
+  
+          toast.error(
+            <div>
+              {messages.split("\n").map((msg, i) => (
+                <p key={i}>{msg}</p>
+              ))}
+            </div>
+          );
+      } else {
+        toast.error(error.message|| "Failed to update password.");
+      }
+    },
+  });
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+  
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast.error("New passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+  
+    try {
+      await changePassword.mutateAsync(formData);
+      
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
       <Card className="w-full max-w-md">
@@ -81,13 +155,64 @@ export default function LoginPage() {
                 required
               />
             </div>
+            
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Dialog>
+                <DialogTrigger className="text-xs text-primary hover:underline">
                   Forgot password?
-                </Link>
-              </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Change Password</DialogTitle>
+                    <DialogDescription>
+                      Enter your current password and choose a new one.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handlePasswordSubmit} className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) =>
+                            setFormData({ ...formData, email: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="newPassword">New Password</Label>
+                        <Input
+                          id="newPassword"
+                          type={showPassword ? "text" : "password"}
+                          value={formData.newPassword}
+                          onChange={(e) =>
+                            setFormData({ ...formData, newPassword: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                        <Input
+                          id="confirmPassword"
+                          type={showPassword ? "text" : "password"}
+                          value={formData.confirmPassword}
+                          onChange={(e) =>
+                            setFormData({ ...formData, confirmPassword: e.target.value })
+                          }
+                        />
+                      </div>
+                      <DialogFooter className="pt-4">
+                        <Button type="submit" disabled={isLoading}>
+                          {isLoading ? "Updating..." : "Update Password"}
+                        </Button>
+                      </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
               <div className="relative">
                 <Input
                   id="password"

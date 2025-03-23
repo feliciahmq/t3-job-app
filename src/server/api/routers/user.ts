@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { db } from '~/server/db';
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { registerSchema, loginSchema, updateUserSchema, changePasswordSchema } from "~/app/lib/zod";
+import { registerSchema, loginSchema, updateUserSchema, changePasswordSchema, changePasswordByEmailSchema } from "~/app/lib/zod";
 import { protectedProcedure, publicProcedure } from '../trpc';
 import { appRouter } from '../root';
 
@@ -138,7 +138,31 @@ export const userRouter = t.router({
     
         return { message: "Password changed successfully" };
       }),
-    
+      changePasswordByEmail: publicProcedure
+        .input(changePasswordByEmailSchema)
+        .mutation(async ({ input }) => {
+            const { email, newPassword, confirmPassword } = input;
+        
+            if (newPassword !== confirmPassword) {
+              throw new Error("New passwords do not match");
+            }
+        
+            const user = await db.user.findUnique({ where: { email } });
+        
+            if (!user) {
+              throw new Error("User not found");
+            }
+        
+        
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+            await db.user.update({
+              where: { email },
+              data: { password: hashedPassword },
+            });
+        
+            return { message: "Password changed successfully" };
+          }),
 });
 
 export type UserRouter = typeof appRouter;
