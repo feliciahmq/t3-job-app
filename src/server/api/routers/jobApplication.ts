@@ -1,6 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { publicProcedure, protectedProcedure } from '../trpc';
-import { appRouter } from '../root';
+import type { appRouter } from '../root';
 import { z } from "zod";
 import {
   createJobApplication,

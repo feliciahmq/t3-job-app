@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import { registerSchema, loginSchema, updateUserSchema, changePasswordSchema, changePasswordByEmailSchema } from "~/app/lib/zod";
 import { protectedProcedure, publicProcedure } from '../trpc';
-import { appRouter } from '../root';
+import type { appRouter } from '../root';
 
 const t = initTRPC.create();
 

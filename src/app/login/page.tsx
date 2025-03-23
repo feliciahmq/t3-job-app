@@ -65,7 +65,7 @@ export default function LoginPage() {
       } else {
         setError("Login failed. Please try again.")
       }
-    } catch (err) {
+    } catch {
       setError("Wrong email or password. Please try again.")
     } finally {
       setIsLoading(false)
@@ -85,7 +85,7 @@ export default function LoginPage() {
           localStorage.setItem("token", res.token);
           router.push("/dashboard");
         }
-      } catch (err) {
+      } catch {
         toast.error("Password changed, but auto-login failed. Please log in manually.");
       }
       setFormData({ ...formData, currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -104,7 +104,7 @@ export default function LoginPage() {
             </div>
           );
       } else {
-        toast.error(error.message|| "Failed to update password.");
+        toast.error(error.message ?? "Failed to update password.");
       }
     },
   });

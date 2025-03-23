@@ -57,7 +57,7 @@ export default function SettingsPage() {
             </div>
           );
       } else {
-        toast.error(error.message|| "Failed to update password.");
+        toast.error(error.message ?? "Failed to update password.");
       }
     },
   });
@@ -70,7 +70,7 @@ export default function SettingsPage() {
 			router.push("/");
     },
     onError: (err) => {
-        toast.error(err.message || "Failed to delete account.");
+        toast.error(err.message ?? "Failed to delete account.");
     }
   })
 

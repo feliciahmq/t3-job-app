@@ -8,7 +8,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "~/app/lib/utils"
 import { Button } from "@/components/ui/button"
-import { BarChart3, BriefcaseIcon, Calendar, FileText, Home, LogOut, Settings, User } from "lucide-react"
+import { BarChart3, Home, LogOut, Settings, User } from "lucide-react"
 
 interface NavItem {
   title: string

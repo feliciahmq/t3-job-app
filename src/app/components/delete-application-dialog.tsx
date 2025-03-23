@@ -14,7 +14,6 @@ import {
 import { toast } from "sonner"
 import type { JobApplication } from "./job-applications-table"
 import { api } from "~/trpc/react"
-import { useQueryClient } from "@tanstack/react-query"
 
 interface DeleteApplicationDialogProps {
   application: JobApplication
@@ -27,8 +26,8 @@ export function DeleteApplicationDialog({ application, open, onOpenChange }: Del
 
   const utils = api.useUtils();
   const deleteJobApp = api.jobApplication.deleteJobApp.useMutation({
-    onSuccess: () => {
-      utils.jobApplication.getJobApps.invalidate(); 
+    onSuccess: async () => {
+      await utils.jobApplication.getJobApps.invalidate(); 
 
       toast.success("Your job application has been created successfully!");
     },

@@ -41,10 +41,10 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || "",
-        email: user.email || "",
+        name: user.name ?? "",
+        email: user.email ?? "",
       });
-      setName(user.name || "");
+      setName(user.name ?? "");
     }
   }, [user]);
 
@@ -76,7 +76,7 @@ export default function ProfilePage() {
                 <AvatarFallback>{name ? name.substring(0, 2).toUpperCase() : "JD"}</AvatarFallback>
               </Avatar>
               <div>
-                <CardTitle>{name || "User"}</CardTitle>
+                <CardTitle>{name ?? "User"}</CardTitle>
               </div>
             </div>
           </CardHeader>

@@ -37,9 +37,9 @@ export function CreateApplicationDialog({ open, onOpenChange }: CreateApplicatio
   const utils = api.useUtils();
 
   const createJobApp = api.jobApplication.createJobApp.useMutation({
-    onSuccess: (newJob) => {
-      utils.jobApplication.getJobApps.invalidate(); 
-      utils.jobApplication.getJobApp.invalidate({ id: newJob.data.jobApp.id }); 
+    onSuccess: async (newJob) => {
+      await utils.jobApplication.getJobApps.invalidate(); 
+      await utils.jobApplication.getJobApp.invalidate({ id: newJob.data.jobApp.id }); 
 
       toast.success("Your job application has been created successfully!");
     },

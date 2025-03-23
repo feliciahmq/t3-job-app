@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import type { JobApplication } from "./job-applications-table"
 import { api } from "~/trpc/react"
-import { JobStatus } from "@prisma/client"
+import type { JobStatus } from "@prisma/client"
 
 interface EditApplicationDialogProps {
   application: JobApplication
@@ -38,9 +38,9 @@ export function EditApplicationDialog({ application, open, onOpenChange }: EditA
 
   const utils = api.useUtils();
     const updateJobApp = api.jobApplication.updateJobApp.useMutation({
-      onSuccess: (newJob) => {
-        utils.jobApplication.getJobApps.invalidate(); 
-        utils.jobApplication.getJobApp.invalidate({ id: newJob.data.id }); 
+      onSuccess: async (newJob) => {
+        await utils.jobApplication.getJobApps.invalidate(); 
+        await utils.jobApplication.getJobApp.invalidate({ id: newJob.data.id }); 
 
         toast.success("Your job application has been updated successfully!");
       },

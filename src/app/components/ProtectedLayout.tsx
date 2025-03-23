@@ -16,7 +16,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     if (!isLoading && !user && !publicRoutes.includes(pathname)) {
       router.replace("/login");
     }
-  }, [user, isLoading, router, pathname]);
+  }, [user, isLoading, router, pathname, publicRoutes]);
 
   if (isLoading) {
     return (
