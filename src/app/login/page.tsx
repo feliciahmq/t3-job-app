@@ -23,6 +23,7 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 import { toast } from "sonner";
+import { queryClient } from "~/trpc/react";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,6 +47,13 @@ export default function LoginPage() {
 					setTimeout(() => {
 						router.push("/dashboard");
 					}, 100);
+
+                    /* eslint-disable */
+                    await Promise.all([
+                        queryClient.invalidateQueries({ queryKey: ['user.getUser'] }),
+                        queryClient.invalidateQueries({ queryKey: ['jobApplication.getStats'] }),
+                        queryClient.invalidateQueries({ queryKey: ['jobApplication.getJobApps'] })
+                    ])
 				} else {
 					setError("Please reload and try again.");
 				}

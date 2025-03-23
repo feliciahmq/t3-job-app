@@ -117,8 +117,13 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
   const [editingApplication, setEditingApplication] = useState<JobApplication | null>(null)
   const [deletingApplication, setDeletingApplication] = useState<JobApplication | null>(null)
 
-  const { data: jobApplications } = api.jobApplication.getJobApps.useQuery();
-
+  const {
+    data: jobApplications,
+    isLoading,
+    isError,
+    error,
+  } = api.jobApplication.getJobApps.useQuery();
+  
   const jobApplicationsData = jobApplications?.data ?? [];
 
   // Filter data based on status if filterStatus is provided
@@ -294,6 +299,23 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
       rowSelection,
     },
   })
+
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center">
+        <p className="text-muted-foreground text-sm">Loading</p>
+      </div>
+    )
+  }
+  
+  if (isError) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center text-red-500">
+        <p>Error loading data: {error.message}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full">
