@@ -40,8 +40,11 @@ export default function LoginPage() {
   });
 
 	const loginMutation = api.user.login.useMutation({
-		onSuccess: () => {
-			router.push("/dashboard");
+		onSuccess: (res) => {
+			if (res.token) {
+        localStorage.setItem("token", res.token);
+        router.push("/dashboard");
+      } 
 		},
 		onError: (error) => {
 			setError(error.message);
@@ -58,13 +61,7 @@ export default function LoginPage() {
 				email,
 				password,
 			});
-
-      if (res.token) {
-        localStorage.setItem("token", res.token);
-        router.push("/dashboard");
-      } else {
-        setError("Login failed. Please try again.")
-      }
+      
     } catch {
       setError("Wrong email or password. Please try again.")
     } finally {
