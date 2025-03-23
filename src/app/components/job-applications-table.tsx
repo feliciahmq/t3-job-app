@@ -122,7 +122,10 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
     isLoading,
     isError,
     error,
-  } = api.jobApplication.getJobApps.useQuery();
+  } = api.jobApplication.getJobApps.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+	});
   
   const jobApplicationsData = jobApplications?.data ?? [];
 

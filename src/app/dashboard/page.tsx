@@ -14,7 +14,10 @@ import { api } from "~/trpc/react"
 
 export default function DashboardPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const { data: statsData } = api.jobApplication.getStats.useQuery()
+  const { data: statsData } = api.jobApplication.getStats.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+	})
 
   const stats = [
     {
@@ -44,55 +47,60 @@ export default function DashboardPage() {
   ]
 
   return (
-    <DashboardShell>
-      <DashboardHeader heading="Dashboard" text="Manage your job applications">
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Application
-        </Button>
-      </DashboardHeader>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.name}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.name}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Tabs defaultValue="all" className="space-y-4">
-        <div className="flex items-center">
-          <TabsList>
-            <TabsTrigger value="all">All Applications</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
-          </TabsList>
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/dashboard/analytics">
-              <Button variant="outline" size="sm">
-                <BarChart3 className="mr-2 h-4 w-4" />
-                Analytics
-              </Button>
-            </Link>
-          </div>
-        </div>
-        <TabsContent value="all" className="space-y-4">
-          <JobApplicationsTable />
-        </TabsContent>
-        <TabsContent value="active" className="space-y-4">
-          <JobApplicationsTable filterStatus={["APPLIED", "INTERVIEW", "OFFER"]} />
-        </TabsContent>
-        <TabsContent value="archived" className="space-y-4">
-          <JobApplicationsTable filterStatus={["REJECTED", "WITHDRAWN"]} />
-        </TabsContent>
-      </Tabs>
-      <CreateApplicationDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
-    </DashboardShell>
+		<div>
+			<div className="bg-red-500 text-white text-center py-2 font-semibold">
+				Reload website to load data from supabaseeeeeeeeeeeee! Bug to be fixed ;-;
+			</div>
+			<DashboardShell>
+				<DashboardHeader heading="Dashboard" text="Manage your job applications">
+					<Button onClick={() => setIsCreateDialogOpen(true)}>
+						<PlusCircle className="mr-2 h-4 w-4" />
+						Add Application
+					</Button>
+				</DashboardHeader>
+				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+					{stats.map((stat) => (
+						<Card key={stat.name}>
+							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+								<CardTitle className="text-sm font-medium">{stat.name}</CardTitle>
+								<stat.icon className="h-4 w-4 text-muted-foreground" />
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{stat.value}</div>
+								<p className="text-xs text-muted-foreground">{stat.description}</p>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+				<Tabs defaultValue="all" className="space-y-4">
+					<div className="flex items-center">
+						<TabsList>
+							<TabsTrigger value="all">All Applications</TabsTrigger>
+							<TabsTrigger value="active">Active</TabsTrigger>
+							<TabsTrigger value="archived">Archived</TabsTrigger>
+						</TabsList>
+						<div className="ml-auto flex items-center gap-2">
+							<Link href="/dashboard/analytics">
+								<Button variant="outline" size="sm">
+									<BarChart3 className="mr-2 h-4 w-4" />
+									Analytics
+								</Button>
+							</Link>
+						</div>
+					</div>
+					<TabsContent value="all" className="space-y-4">
+						<JobApplicationsTable />
+					</TabsContent>
+					<TabsContent value="active" className="space-y-4">
+						<JobApplicationsTable filterStatus={["APPLIED", "INTERVIEW", "OFFER"]} />
+					</TabsContent>
+					<TabsContent value="archived" className="space-y-4">
+						<JobApplicationsTable filterStatus={["REJECTED", "WITHDRAWN"]} />
+					</TabsContent>
+				</Tabs>
+				<CreateApplicationDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
+			</DashboardShell>
+		</div>
   )
 }
 

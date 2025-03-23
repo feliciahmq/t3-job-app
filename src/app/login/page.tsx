@@ -41,26 +41,19 @@ export default function LoginPage() {
   });
 
 	const loginMutation = api.user.login.useMutation({
-			onSuccess: async (res) => {
-				if (res?.token) {
-					localStorage.setItem("token", res.token);
-					setTimeout(() => {
-						router.push("/dashboard");
-					}, 100);
-
-                    /* eslint-disable */
-                    await Promise.all([
-                        queryClient.invalidateQueries({ queryKey: ['user.getUser'] }),
-                        queryClient.invalidateQueries({ queryKey: ['jobApplication.getStats'] }),
-                        queryClient.invalidateQueries({ queryKey: ['jobApplication.getJobApps'] })
-                    ])
-				} else {
-					setError("Please reload and try again.");
-				}
-			},
-			onError: (error) => {
-					setError(error.message);
-			},
+		onSuccess: async (res) => {
+			if (res?.token) {
+				localStorage.setItem("token", res.token);
+				setTimeout(() => {
+					router.push("/dashboard");
+				}, 100);
+			} else {
+				setError("Please reload and try again.");
+			}
+		},
+		onError: (error) => {
+				setError(error.message);
+		},
 	})
 
   const handleSubmit = async (e: React.FormEvent) => {
