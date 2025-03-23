@@ -39,18 +39,21 @@ export default function LoginPage() {
     confirmPassword: "",
   });
 
+  const utils = api.useUtils();
+
 	const loginMutation = api.user.login.useMutation({
-		onSuccess: (res) => {
-			if (res?.token) {
-        localStorage.setItem("token", res.token);
-        router.push("/dashboard");
-      } else {
-				setError("Please reload and try again.");
-			}
-		},
-		onError: (error) => {
-			setError(error.message);
-		},
+			onSuccess: async (res) => {
+					if (res?.token) {
+			localStorage.setItem("token", res.token);
+			await utils.user.getUser.invalidate();
+			router.push("/dashboard");
+			} else {
+							setError("Please reload and try again.");
+					}
+			},
+			onError: (error) => {
+					setError(error.message);
+			},
 	})
 
   const handleSubmit = async (e: React.FormEvent) => {
