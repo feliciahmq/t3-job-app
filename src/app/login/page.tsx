@@ -41,10 +41,12 @@ export default function LoginPage() {
 
 	const loginMutation = api.user.login.useMutation({
 		onSuccess: (res) => {
-			if (res.token) {
+			if (res?.token) {
         localStorage.setItem("token", res.token);
         router.push("/dashboard");
-      } 
+      } else {
+				setError("Please reload and try again.");
+			}
 		},
 		onError: (error) => {
 			setError(error.message);
@@ -57,7 +59,7 @@ export default function LoginPage() {
     setError("")
 
     try {
-			const res = await loginMutation.mutateAsync({
+			await loginMutation.mutateAsync({
 				email,
 				password,
 			});
