@@ -109,60 +109,70 @@ export const userRouter = t.router({
           },
         };
       }),
-      changePassword: protectedProcedure
-      .input(changePasswordSchema)
-      .mutation(async ({ ctx, input }) => {
-        const { currentPassword, newPassword, confirmPassword } = input;
+    changePassword: protectedProcedure
+    .input(changePasswordSchema)
+    .mutation(async ({ ctx, input }) => {
+    const { currentPassword, newPassword, confirmPassword } = input;
+
+    if (newPassword !== confirmPassword) {
+        throw new Error("New passwords do not match");
+    }
+
+    const user = await db.user.findUnique({ where: { id: ctx.user!.id } });
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+        throw new Error("Incorrect current password");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.user.update({
+        where: { id: ctx.user!.id },
+        data: { password: hashedPassword },
+    });
+
+    return { message: "Password changed successfully" };
+    }),
+    changePasswordByEmail: publicProcedure
+    .input(changePasswordByEmailSchema)
+    .mutation(async ({ input }) => {
+        const { email, newPassword, confirmPassword } = input;
     
         if (newPassword !== confirmPassword) {
-          throw new Error("New passwords do not match");
+            throw new Error("New passwords do not match");
         }
     
-        const user = await db.user.findUnique({ where: { id: ctx.user!.id } });
+        const user = await db.user.findUnique({ where: { email } });
     
         if (!user) {
-          throw new Error("User not found");
+            throw new Error("User not found");
         }
     
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!isMatch) {
-          throw new Error("Incorrect current password");
-        }
     
         const hashedPassword = await bcrypt.hash(newPassword, 10);
     
         await db.user.update({
-          where: { id: ctx.user!.id },
-          data: { password: hashedPassword },
+            where: { email },
+            data: { password: hashedPassword },
         });
     
         return { message: "Password changed successfully" };
-      }),
-      changePasswordByEmail: publicProcedure
-        .input(changePasswordByEmailSchema)
-        .mutation(async ({ input }) => {
-            const { email, newPassword, confirmPassword } = input;
-        
-            if (newPassword !== confirmPassword) {
-              throw new Error("New passwords do not match");
-            }
-        
-            const user = await db.user.findUnique({ where: { email } });
-        
-            if (!user) {
-              throw new Error("User not found");
-            }
-        
-        
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-        
-            await db.user.update({
-              where: { email },
-              data: { password: hashedPassword },
-            });
-        
-            return { message: "Password changed successfully" };
-          }),
+        }),
+    deleteAccount: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const userId = ctx.user?.id;
+
+        await db.user.delete({
+          where: { id: userId },
+        });
+
+        return { message: "Account deleted successfully" };
+      })
 });
 
 export type UserRouter = typeof appRouter;

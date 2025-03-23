@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { api } from "~/trpc/react"
+import { useRouter } from "next/navigation"
 
 export default function SettingsPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -60,6 +61,18 @@ export default function SettingsPage() {
       }
     },
   });
+
+  const router = useRouter();
+
+  const deleteAccount = api.user.deleteAccount.useMutation({
+    onSuccess: () => {
+			toast.success("Account deleted successfully.");
+			router.push("/");
+    },
+    onError: (err) => {
+        toast.error(err.message || "Failed to delete account.");
+    }
+  })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -159,7 +172,10 @@ export default function SettingsPage() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-destructive text-destructive-foreground">
+                    <AlertDialogAction 
+											className="bg-destructive text-destructive-foreground"
+											onClick={() => deleteAccount.mutate()}
+                    >
                       Delete Account
                     </AlertDialogAction>
                   </AlertDialogFooter>
