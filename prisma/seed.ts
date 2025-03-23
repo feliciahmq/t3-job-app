@@ -1,52 +1,12 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { execSync } from "child_process";
 
-const prisma = new PrismaClient();
+const dbUrl = process.env.DATABASE_URL;
 
-async function main() {
-  const email = "demo@example.com";
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    console.log("Demo user already exists.");
-    return;
-  }
-
-  const hashedPassword = await bcrypt.hash("password", 10);
-
-  const user = await prisma.user.create({
-    data: {
-      name: "demo",
-      email: "demo@example.com",
-      password: hashedPassword,
-      jobApplications: {
-        create: [
-          {
-            company: "OpenAI",
-            position: "AI Engineer",
-            location: "Remote",
-            status: "INTERVIEW",
-          },
-          {
-            company: "Google",
-            position: "Software Intern",
-            location: "Singapore",
-            status: "APPLIED",
-          },
-        ],
-      },
-    },
-  });
-
-  console.log("Seeded demo user:", user.email);
+if (!dbUrl) {
+  throw new Error("DATABASE_URL is not defined.");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  /* eslint-disable */
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+console.log("Seeding database from SQL file...");
+execSync(`psql "${dbUrl}" < prisma/seed.sql`, { stdio: "inherit" });
+
+console.log("Database seeded! :>");
