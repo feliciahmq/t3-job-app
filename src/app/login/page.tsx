@@ -23,7 +23,6 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 import { toast } from "sonner";
-import { queryClient } from "~/trpc/react";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -42,11 +41,11 @@ export default function LoginPage() {
 
 	const loginMutation = api.user.login.useMutation({
 		onSuccess: async (res) => {
+            console.log("Login success response:", res);
 			if (res?.token) {
 				localStorage.setItem("token", res.token);
-				setTimeout(() => {
-					router.push("/dashboard");
-				}, 100);
+                router.push("/dashboard");
+                router.refresh(); 
 			} else {
 				setError("Please reload and try again.");
 			}
@@ -249,7 +248,7 @@ export default function LoginPage() {
           <div className="text-xs text-muted-foreground mt-4">
             <p>Demo credentials:</p>
             <p>Email: demo@example.com</p>
-            <p>Password: password</p>
+            <p>Password: demopassword</p>
           </div>
         </CardFooter>
       </Card>

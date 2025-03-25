@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,6 +18,12 @@ export default function DashboardPage() {
     refetchOnMount: true,
     refetchOnWindowFocus: true,
 	})
+
+	const utils = api.useUtils(); 
+	useEffect(() => {
+		/* eslint-disable */
+		utils.jobApplication.getStats.invalidate(); // force refetch
+	}, []);
 
   const stats = [
     {
@@ -48,9 +54,6 @@ export default function DashboardPage() {
 
   return (
 		<div>
-			<div className="bg-red-500 text-white text-center py-2 font-semibold">
-				Reload website to load data from supabaseeeeeeeeeeeee! Bug to be fixed ;-;
-			</div>
 			<DashboardShell>
 				<DashboardHeader heading="Dashboard" text="Manage your job applications">
 					<Button onClick={() => setIsCreateDialogOpen(true)}>

@@ -10,10 +10,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const { data: user, isLoading } = api.user.getUser.useQuery();
 
-  const publicRoutes = ["/", "/login", "/register"];
+  const publicRoutes = ["/", "/login", "/register", "/dashboard"];
 
   useEffect(() => {
-    if (!isLoading && !user && !publicRoutes.includes(pathname)) {
+    if (!isLoading && !publicRoutes.includes(pathname) && !user ) {
       router.replace("/login");
     }
   }, [user, isLoading, router, pathname, publicRoutes]);

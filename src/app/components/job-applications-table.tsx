@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { api } from "~/trpc/react"
 import {
   type ColumnDef,
@@ -128,6 +128,22 @@ export function JobApplicationsTable({ filterStatus }: { filterStatus?: string[]
 	});
   
   const jobApplicationsData = jobApplications?.data ?? [];
+
+  const utils = api.useUtils(); 
+  useEffect(() => {
+    const invalidateData = async () => {
+      try {
+        await utils.jobApplication.getJobApps.invalidate(); // refetch the table data
+        await utils.jobApplication.getStats.invalidate();   // optional: also refresh stats
+      } catch (err) {
+        console.error("Error invalidating job application data", err);
+      }
+    };
+  
+    /* eslint-disable */
+    invalidateData();
+  }, []);
+  
 
   // Filter data based on status if filterStatus is provided
   /* eslint-disable */
